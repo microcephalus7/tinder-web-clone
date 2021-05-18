@@ -68,13 +68,18 @@ def index(request):
 
 @csrf_exempt
 def tokenCheck(request):
-    
-    token = request.COOKIES["token"]
+    try:
+        token = request.COOKIES["token"]
+    except:
+        JsonResponse("검증되지 않은 사용자", safe=False, status=401)
     userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
+    result = None
     if Account.objects.filter(email=userTokenInfo["email"]).exists():
         result = JsonResponse("검증된 사용자", safe=False,status=202)
         return result
-    return JsonResponse("미검증 사용자", safe=False)
+    result = JsonResponse("검증되지 않은 사용자", safe=False, status=401)
+    result.set_cookie('token',None)
+    return result
 
 
 # 프로필 관리
