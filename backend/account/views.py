@@ -20,14 +20,12 @@ def index(request):
     try:
         requestData = json.load(request)
     except:
-        return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False)
-
+        return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
     accountCheck = Account.objects.filter(email=requestData["email"])
     # 회원가입
     if request.method == "POST":
         if accountCheck.exists():
-            return JsonResponse('이미 가입 이력이 존재합니다', safe=False)
-
+            return JsonResponse('이미 가입 이력이 존재합니다', safe=False, status=400)
         password = requestData["password"].encode('utf-8')
         passwordCrypt = bcrypt.hashpw(password, bcrypt.gensalt())
         passwordCrypt = passwordCrypt.decode('utf-8')
@@ -53,9 +51,9 @@ def index(request):
                 result.set_cookie('token', token)
                 return result
 
-            return JsonResponse('비밀번호가 일치하지 않습니다', safe=False)
+            return JsonResponse('비밀번호가 일치하지 않습니다', safe=False, status=400)
 
-        return JsonResponse('계정이 존재하지 않습니다', safe=False)
+        return JsonResponse('계정이 존재하지 않습니다', safe=False, status=404)
     # 회원 수정
     if request.method == "PATCH":
         empty = None
@@ -70,6 +68,7 @@ def index(request):
 
 @csrf_exempt
 def tokenCheck(request):
+    
     token = request.COOKIES["token"]
     userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
     if Account.objects.filter(email=userTokenInfo["email"]).exists():
