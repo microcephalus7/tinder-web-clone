@@ -56,9 +56,8 @@ def index(request):
         return JsonResponse('계정이 존재하지 않습니다', safe=False, status=404)
     # 회원 수정
     if request.method == "PATCH":
-        empty = None
         result = JsonResponse("token delete", safe=False)
-        result.set_cookie('token', empty)
+        result.delete_cookie('token')
         return result
 
     # 회원탈퇴
@@ -71,14 +70,14 @@ def tokenCheck(request):
     try:
         token = request.COOKIES["token"]
     except:
-        JsonResponse("검증되지 않은 사용자", safe=False, status=401)
+        JsonResponse("토큰 값이 없습니다", safe=False, status=401)
     userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
     result = None
     if Account.objects.filter(email=userTokenInfo["email"]).exists():
         result = JsonResponse("검증된 사용자", safe=False,status=202)
         return result
     result = JsonResponse("검증되지 않은 사용자", safe=False, status=401)
-    result.set_cookie('token',None)
+    result.delete_cookie('token')
     return result
 
 
