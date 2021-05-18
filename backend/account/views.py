@@ -72,7 +72,7 @@ def tokenCheck(request):
     token = request.COOKIES["token"]
     userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
     if Account.objects.filter(email=userTokenInfo["email"]).exists():
-        result = JsonResponse("검증된 사용자", safe=False)
+        result = JsonResponse("검증된 사용자", safe=False,status=202)
         return result
     return JsonResponse("미검증 사용자", safe=False)
 
