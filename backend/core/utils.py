@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 import jwt
-import json
 from django.http import JsonResponse, request
 from django.core.exceptions import ObjectDoesNotExist
 from backend.settings import SECRET_KEY
@@ -18,14 +17,14 @@ def tokenCheckDecorator(func):
             account = Account.objects.get(email=token["email"])
             request.account = account
         except jwt.exeptions.DecodeError:
-            return JsonResponse('유효하지 않은 토큰', status=400)
+            return JsonResponse('유효하지 않은 토큰', status=401)
         except Account.DoesNotExist:
-            return JsonResponse('해당 유저가 없습니다', status=400)
+            return JsonResponse('해당 유저가 없습니다', status=404)
         # 프로필 탐색
         try:
             profile = Profile.objects.get(account=account)
             request.profile = profile
         except Profile.DoesNotExist:
-            return JsonResponse("해당 유저가 프로필을 생성하지 않았습니다", status=400)
+            return JsonResponse("해당 유저가 프로필을 생성하지 않았습니다", status=404)
         return func(request, *args, **kwargs)
     return wrapper
