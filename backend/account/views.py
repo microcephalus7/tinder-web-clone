@@ -85,12 +85,11 @@ def tokenCheck(request):
 @csrf_exempt
 @tokenCheckDecorator
 def profile(request):
-
     account = request.account
     try:
         requestData = json.load(request)
     except:
-        return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False)
+        return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
     if request.method == "GET":
         try:
             accountProfile = get_object_or_404(Profile, account=account)
@@ -98,7 +97,7 @@ def profile(request):
             jsonResult = JsonResponse(result, safe=False)
             return jsonResult
         except Profile.DoesNotExist:
-            return JsonResponse("프로필이 존재하지 않습니다", status=400)
+            return JsonResponse("프로필이 존재하지 않습니다", status=404)
     if request.method == "POST":
         newProfile = Profile(username=requestData["username"], phoneNumber=int(
             requestData["phoneNumber"]), male=requestData["male"], birthday=requestData["birthday"], latitude=requestData["latitude"], longitude=requestData["longitude"],
@@ -111,7 +110,7 @@ def profile(request):
         accountProfile = get_object_or_404(Profile, account=account)
         requestKey = requestData.keys()
         if not requestKey:
-            return JsonResponse("request 객체가 비었습니다", safe=False)
+            return JsonResponse("request 객체가 비었습니다", safe=False, status=400)
         return JsonResponse("request 확인", safe=False)
     if request.method == "DELETE":
         return request
