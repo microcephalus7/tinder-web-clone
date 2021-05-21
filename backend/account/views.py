@@ -54,17 +54,20 @@ def index(request):
             return JsonResponse('비밀번호가 일치하지 않습니다', safe=False, status=400)
 
         return JsonResponse('계정이 존재하지 않습니다', safe=False, status=404)
+
     # 회원 수정
+    # 미완성
     if request.method == "PATCH":
         result = JsonResponse("token delete", safe=False)
         result.delete_cookie('token')
         return result
 
     # 회원탈퇴
+    # 미완성
     if request.method == "DELETE":
         return HttpResponse(request)
 
-
+# token 체크
 @csrf_exempt
 def tokenCheck(request):
     try:
@@ -90,6 +93,8 @@ def profile(request):
         requestData = json.load(request)
     except:
         return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
+
+    # 프로필 읽기
     if request.method == "GET":
         try:
             accountProfile = get_object_or_404(Profile, account=account)
@@ -98,7 +103,12 @@ def profile(request):
             return jsonResult
         except Profile.DoesNotExist:
             return JsonResponse("프로필이 존재하지 않습니다", status=404)
+    
+    # 프로필 생성
     if request.method == "POST":
+        profileCheck = Profile.objects.filter(account=account)
+        if profileCheck.exists():
+            return JsonResponse("이미 프로필이 존재합니다", safe=False, status=400)
         newProfile = Profile(username=requestData["username"], phoneNumber=int(
             requestData["phoneNumber"]), male=requestData["male"], birthday=requestData["birthday"], latitude=requestData["latitude"], longitude=requestData["longitude"],
             account=account)
@@ -106,11 +116,17 @@ def profile(request):
         newProfile = model_to_dict(newProfile)
         result = JsonResponse(newProfile, safe=False)
         return result
+
+    # 프로필 수정
+    # 미완성
     if request.method == "PATCH":
         accountProfile = get_object_or_404(Profile, account=account)
         requestKey = requestData.keys()
         if not requestKey:
             return JsonResponse("request 객체가 비었습니다", safe=False, status=400)
         return JsonResponse("request 확인", safe=False)
+
+    # 프로필 삭제
+    # 미완성    
     if request.method == "DELETE":
         return request
