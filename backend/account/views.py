@@ -11,7 +11,7 @@ from django.views import View
 import bcrypt
 import jwt
 from backend.settings import SECRET_KEY
-from core.utils import tokenCheckDecorator
+from core.utils import tokenCheckDecorator,validiationCheck
 # Create your views here.
 
 
@@ -55,12 +55,20 @@ def index(request):
 
         return JsonResponse('계정이 존재하지 않습니다', safe=False, status=404)
 
-    # 회원 수정
+    # 회원 정보 수정 (password)
     # 미완성
     if request.method == "PATCH":
-        result = JsonResponse("token delete", safe=False)
-        result.delete_cookie('token')
-        return result
+        validCheck = validiationCheck(["email","password"], requestData.keys())
+        if validCheck == False:
+            return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
+        account = get_object_or_404(Account, email=requestData["email"])
+
+        password = requestData["password"].encode('utf-8')
+        passwordCrypt = bcrypt.hashpw(password, bcrypt.gensalt())
+        passwordCrypt = passwordCrypt.decode('utf-8')
+        account.password=passwordCrypt
+        account.save()
+        return JsonResponse("비밀번호 변경 완료",safe=False)
 
     # 회원탈퇴
     # 미완성
