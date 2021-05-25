@@ -14,6 +14,7 @@ from backend.settings import SECRET_KEY
 from core.utils import tokenCheckDecorator,validiationCheck
 # Create your views here.
 
+@csrf_exempt
 def signIn(request):
     try:
         requestData = json.load(request)
@@ -37,6 +38,30 @@ def signIn(request):
         return JsonResponse('아이디나 비밀번호가 일치하지 않습니다', safe=False, status=404)
     else:
         return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
+
+@csrf_exempt
+def signUp(request):
+    try:
+        requestData = json.load(request)
+    except:
+        return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
+    accountCheck = Account.objects.filter(email=requestData["email"])
+
+    if request.method == "POST":
+        if accountCheck.exists():
+            return JsonResponse('이미 가입 이력이 존재합니다', safe=False, status=400)
+        password = requestData["password"].encode('utf-8')
+        passwordCrypt = bcrypt.hashpw(password, bcrypt.gensalt())
+        passwordCrypt = passwordCrypt.decode('utf-8')
+        newAccount = Account(
+            email=requestData["email"], password=passwordCrypt)
+        newAccount.save()
+        token = jwt.encode({'email': newAccount.email, 'exp': timezone.now()+timezone.timedelta(days=7)},
+                           SECRET_KEY, algorithm="HS256")
+        result = JsonResponse(model_to_dict(
+            newAccount, fields=('email')), safe=False)
+        result.set_cookie('token', token)
+        return result
 
 @csrf_exempt
 def index(request):
