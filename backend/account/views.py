@@ -34,9 +34,9 @@ def signIn(request):
                 result.set_cookie('token', token)
                 return result
 
-            return JsonResponse('비밀번호가 일치하지 않습니다', safe=False, status=400)
+            return JsonResponse('아이디나 비밀번호가 일치하지 않습니다', safe=False, status=400)
 
-        return JsonResponse('아이디나 비밀번호가 일치하지 않습니다', safe=False, status=404)
+        return JsonResponse('계정이 존재하지 않습니다', safe=False, status=404)
     else:
         return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
 
@@ -78,7 +78,6 @@ def index(request):
 
     # 회원 정보 조회
     if request.method == "GET":
-        
         result = JsonResponse(model_to_dict(
                     account, fields=("email")), safe=False)
         return result
@@ -102,7 +101,9 @@ def index(request):
     # 미완성
     if request.method == "DELETE":
         account.delete()
-        return JsonResponse("계정 삭제 완료", safe=False)
+        result = JsonResponse("계정 삭제 완료", safe=False)
+        result.delete_cookie("token")
+        return result
 
 # token 체크
 @csrf_exempt
