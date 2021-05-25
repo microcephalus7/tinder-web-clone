@@ -11,9 +11,10 @@ from django.views import View
 import bcrypt
 import jwt
 from backend.settings import SECRET_KEY
-from core.utils import tokenCheckDecorator,validiationCheck
+from core.utils import tokenCheckDecorator,validiationCheck,tokenCheckNonProDecorator
 # Create your views here.
 
+# 로그인
 @csrf_exempt
 def signIn(request):
     try:
@@ -39,6 +40,7 @@ def signIn(request):
     else:
         return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
 
+# 회원가입
 @csrf_exempt
 def signUp(request):
     try:
@@ -63,6 +65,7 @@ def signUp(request):
         result.set_cookie('token', token)
         return result
 
+@tokenCheckNonProDecorator
 @csrf_exempt
 def index(request):
     try:
@@ -70,11 +73,13 @@ def index(request):
     except:
         return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
     accountCheck = Account.objects.filter(email=requestData["email"])
-    # 회원가입
-    
 
-    # 로그인
-    
+    # 회원 정보 조회
+    if request.method == "GET":
+        account = request.account
+        result = JsonResponse(model_to_dict(
+                    account, fields=("email")), safe=False)
+        return result
 
     # 회원 정보 수정 (password)
     # 미완성
