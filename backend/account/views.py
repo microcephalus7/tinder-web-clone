@@ -46,21 +46,7 @@ def index(request):
         return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
     accountCheck = Account.objects.filter(email=requestData["email"])
     # 회원가입
-    if request.method == "POST":
-        if accountCheck.exists():
-            return JsonResponse('이미 가입 이력이 존재합니다', safe=False, status=400)
-        password = requestData["password"].encode('utf-8')
-        passwordCrypt = bcrypt.hashpw(password, bcrypt.gensalt())
-        passwordCrypt = passwordCrypt.decode('utf-8')
-        newAccount = Account(
-            email=requestData["email"], password=passwordCrypt)
-        newAccount.save()
-        token = jwt.encode({'email': newAccount.email, 'exp': timezone.now()+timezone.timedelta(days=7)},
-                           SECRET_KEY, algorithm="HS256")
-        result = JsonResponse(model_to_dict(
-            newAccount, fields=('email')), safe=False)
-        result.set_cookie('token', token)
-        return result
+    
 
     # 로그인
     
