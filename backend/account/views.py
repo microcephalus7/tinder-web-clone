@@ -74,10 +74,11 @@ def index(request):
     except:
         return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
     
+    account = request.account
 
     # 회원 정보 조회
     if request.method == "GET":
-        account = request.account
+        
         result = JsonResponse(model_to_dict(
                     account, fields=("email")), safe=False)
         return result
@@ -88,8 +89,6 @@ def index(request):
         validCheck = validiationCheck(["password"], requestData.keys())
         if validCheck == False:
             return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
-        
-        account = request.account
 
         password = requestData["password"].encode('utf-8')
         passwordCrypt = bcrypt.hashpw(password, bcrypt.gensalt())
@@ -102,7 +101,8 @@ def index(request):
     # 회원탈퇴
     # 미완성
     if request.method == "DELETE":
-        return HttpResponse(request)
+        account.delete()
+        return JsonResponse("계정 삭제 완료", safe=False)
 
 # token 체크
 @csrf_exempt
