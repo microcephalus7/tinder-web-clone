@@ -14,6 +14,29 @@ from backend.settings import SECRET_KEY
 from core.utils import tokenCheckDecorator,validiationCheck
 # Create your views here.
 
+def signIn(request):
+    try:
+        requestData = json.load(request)
+    except:
+        return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
+    accountCheck = Account.objects.filter(email=requestData["email"])
+
+    if request.method == "POST":
+        if accountCheck.exists():
+            account = Account.objects.get(email=requestData["email"])
+            if bcrypt.checkpw(requestData["password"].encode('utf-8'), account.password.encode('utf-8')):
+                token = jwt.encode({'email': account.email, 'exp': timezone.now(
+                )+timezone.timedelta(days=7)}, SECRET_KEY, algorithm="HS256")
+                result = JsonResponse(model_to_dict(
+                    account, fields=("email")), safe=False)
+                result.set_cookie('token', token)
+                return result
+
+            return JsonResponse('비밀번호가 일치하지 않습니다', safe=False, status=400)
+
+        return JsonResponse('아이디나 비밀번호가 일치하지 않습니다', safe=False, status=404)
+    else:
+        return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
 
 @csrf_exempt
 def index(request):
@@ -40,20 +63,7 @@ def index(request):
         return result
 
     # 로그인
-    if request.method == "GET":
-        if accountCheck.exists():
-            account = Account.objects.get(email=requestData["email"])
-            if bcrypt.checkpw(requestData["password"].encode('utf-8'), account.password.encode('utf-8')):
-                token = jwt.encode({'email': account.email, 'exp': timezone.now(
-                )+timezone.timedelta(days=7)}, SECRET_KEY, algorithm="HS256")
-                result = JsonResponse(model_to_dict(
-                    account, fields=("email")), safe=False)
-                result.set_cookie('token', token)
-                return result
-
-            return JsonResponse('비밀번호가 일치하지 않습니다', safe=False, status=400)
-
-        return JsonResponse('계정이 존재하지 않습니다', safe=False, status=404)
+    
 
     # 회원 정보 수정 (password)
     # 미완성
