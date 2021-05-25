@@ -61,6 +61,7 @@ def index(request):
         validCheck = validiationCheck(["email","password"], requestData.keys())
         if validCheck == False:
             return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
+        
         account = get_object_or_404(Account, email=requestData["email"])
 
         password = requestData["password"].encode('utf-8')
