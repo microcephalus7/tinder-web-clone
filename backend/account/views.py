@@ -65,8 +65,9 @@ def signUp(request):
         result.set_cookie('token', token)
         return result
 
-@tokenCheckNonProDecorator
 @csrf_exempt
+@tokenCheckNonProDecorator
+
 def index(request):
     try:
         requestData = json.load(request)
@@ -84,17 +85,18 @@ def index(request):
     # 회원 정보 수정 (password)
     # 미완성
     if request.method == "PATCH":
-        validCheck = validiationCheck(["email","password"], requestData.keys())
+        validCheck = validiationCheck(["password"], requestData.keys())
         if validCheck == False:
             return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
         
-        account = get_object_or_404(Account, email=requestData["email"])
+        account = request.account
 
         password = requestData["password"].encode('utf-8')
         passwordCrypt = bcrypt.hashpw(password, bcrypt.gensalt())
         passwordCrypt = passwordCrypt.decode('utf-8')
         account.password=passwordCrypt
         account.save()
+
         return JsonResponse("비밀번호 변경 완료",safe=False)
 
     # 회원탈퇴
