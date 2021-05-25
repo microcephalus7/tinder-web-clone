@@ -73,7 +73,7 @@ def index(request):
         requestData = json.load(request)
     except:
         return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
-    accountCheck = Account.objects.filter(email=requestData["email"])
+    
 
     # 회원 정보 조회
     if request.method == "GET":
