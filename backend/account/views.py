@@ -37,8 +37,8 @@ def signIn(request):
             return JsonResponse('아이디나 비밀번호가 일치하지 않습니다', safe=False, status=400)
 
         return JsonResponse('계정이 존재하지 않습니다', safe=False, status=404)
-    else:
-        return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
+    
+    return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
 
 # 회원가입
 @csrf_exempt
