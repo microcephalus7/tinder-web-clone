@@ -64,6 +64,8 @@ def signUp(request):
             newAccount, fields=('email')), safe=False)
         result.set_cookie('token', token)
         return result
+    return JsonResponse("허용하지 않는 요청 메서드입니다", safe=False, status=405)
+        
 
 @csrf_exempt
 @tokenCheckNonProDecorator
@@ -83,7 +85,6 @@ def index(request):
         return result
 
     # 회원 정보 수정 (password)
-    # 미완성
     if request.method == "PATCH":
         validCheck = validiationCheck(["password"], requestData.keys())
         if validCheck == False:
@@ -98,29 +99,11 @@ def index(request):
         return JsonResponse("비밀번호 변경 완료",safe=False)
 
     # 회원탈퇴
-    # 미완성
     if request.method == "DELETE":
         account.delete()
         result = JsonResponse("계정 삭제 완료", safe=False)
         result.delete_cookie("token")
         return result
-
-# token 체크
-@csrf_exempt
-def tokenCheck(request):
-    try:
-        token = request.COOKIES["token"]
-    except:
-        JsonResponse("토큰 값이 없습니다", safe=False, status=401)
-    userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
-    result = None
-    if Account.objects.filter(email=userTokenInfo["email"]).exists():
-        result = JsonResponse("검증된 사용자", safe=False,status=202)
-        return result
-    result = JsonResponse("검증되지 않은 사용자", safe=False, status=401)
-    result.delete_cookie('token')
-    return result
-
 
 # 프로필 관리
 @csrf_exempt
@@ -159,12 +142,28 @@ def profile(request):
     # 미완성
     if request.method == "PATCH":
         accountProfile = get_object_or_404(Profile, account=account)
-        requestKey = requestData.keys()
-        if not requestKey:
-            return JsonResponse("request 객체가 비었습니다", safe=False, status=400)
-        return JsonResponse("request 확인", safe=False)
+        
 
     # 프로필 삭제
     # 미완성    
     if request.method == "DELETE":
         return request
+
+# token 체크
+@csrf_exempt
+def tokenCheck(request):
+    try:
+        token = request.COOKIES["token"]
+    except:
+        JsonResponse("토큰 값이 없습니다", safe=False, status=401)
+    userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
+    result = None
+    if Account.objects.filter(email=userTokenInfo["email"]).exists():
+        result = JsonResponse("검증된 사용자", safe=False,status=202)
+        return result
+    result = JsonResponse("검증되지 않은 사용자", safe=False, status=401)
+    result.delete_cookie('token')
+    return result
+
+
+
