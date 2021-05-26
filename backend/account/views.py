@@ -104,6 +104,7 @@ def index(request):
         result = JsonResponse("계정 삭제 완료", safe=False)
         result.delete_cookie("token")
         return result
+    return JsonResponse("허용하지 않는 요청 메서드입니다", safe=False, status=405)
 
 # 프로필 관리
 @csrf_exempt
