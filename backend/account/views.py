@@ -115,26 +115,27 @@ def profile(request):
         requestData = json.load(request)
     except:
         return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
-        
-    profileCheck = Profile.objects.filter(account=account)
+
+    profile = Profile.objects.get(account=account)
+
     # 프로필 읽기
     if request.method == "GET":
-        try:
-            accountProfile = get_object_or_404(Profile, account=account)
-            result = model_to_dict(accountProfile)
-            jsonResult = JsonResponse(result, safe=False)
-            return jsonResult
-        except Profile.DoesNotExist:
-            return JsonResponse("프로필이 존재하지 않습니다", status=404)
-    
+        if not profile:
+            result = JsonResponse("해당 유저가 프로필을 생성하지 않았습니다", safe=False,status=404)
+            return result
+
+        result = JsonResponse(model_to_dict(profile), safe=False)
+        return result
+        
     # 프로필 생성
     if request.method == "POST":
         requestCheck = validiationCheck(requestData.keys(), ["username","phoneNumber", "male","birthday","latitude", "longitude"])
         if not requestCheck:
             return JsonResponse("규격에 맞는 데이터를 넣어주세요",safe=False, status=400)
-        profileCheck = Profile.objects.filter(account=account)
+        
         if profileCheck.exists():
             return JsonResponse("이미 프로필이 존재합니다", safe=False, status=400)
+        
         newProfile = Profile(username=requestData["username"], phoneNumber=int(
             requestData["phoneNumber"]), male=requestData["male"], birthday=requestData["birthday"], latitude=requestData["latitude"], longitude=requestData["longitude"],
             account=account)
