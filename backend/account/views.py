@@ -164,7 +164,13 @@ def profile(request):
     # 프로필 삭제
     # 미완성    
     if request.method == "DELETE":
-        return request
+        if not profile:
+            return JsonResponse("프로필이 존재하지 않습니다", safe=False, status=404)
+        
+        profile.delete()
+        
+        result = JsonResponse("프로필 삭제 완료", safe=False)
+        return result
     return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
 
 # token 체크
