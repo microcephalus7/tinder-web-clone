@@ -147,13 +147,25 @@ def profile(request):
     # 프로필 수정
     # 미완성
     if request.method == "PATCH":
-        accountProfile = get_object_or_404(Profile, account=account)
+        if not profile:
+            return JsonResponse("프로필이 존재하지 않습니다", safe=False, status=400)
+        
+        requestCheck = validiationCheck(requestData.keys(), ["username","phoneNumber", "male","birthday","latitude", "longitude"])
+        if not requestCheck:
+            return JsonResponse("규격에 맞는 데이터를 넣어주세요",safe=False, status=400)
+
+        profile.update(username=requestData["username"], phoneNumber=int(
+            requestData["phoneNumber"]), male=requestData["male"], birthday=requestData["birthday"], latitude=requestData["latitude"], longitude=requestData["longitude"],
+            account=account)
+        result = JsonResponse(model_to_dict(profile[0]), safe=False)
+        return result
         
 
     # 프로필 삭제
     # 미완성    
     if request.method == "DELETE":
         return request
+    return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
 
 # token 체크
 @csrf_exempt
