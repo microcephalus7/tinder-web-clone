@@ -153,18 +153,19 @@ def profile(request):
 # token 체크
 @csrf_exempt
 def tokenCheck(request):
-    try:
-        token = request.COOKIES["token"]
-    except:
-        JsonResponse("토큰 값이 없습니다", safe=False, status=401)
-    userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
-    result = None
-    if Account.objects.filter(email=userTokenInfo["email"]).exists():
-        result = JsonResponse("검증된 사용자", safe=False,status=202)
+    if request.method == "POST":
+        try:
+            token = request.COOKIES["token"]
+        except:
+            JsonResponse("토큰 값이 없습니다", safe=False, status=401)
+        userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
+        result = None
+        if Account.objects.filter(email=userTokenInfo["email"]).exists():
+            result = JsonResponse("검증된 사용자", safe=False,status=202)
+            return result
+        result = JsonResponse("검증되지 않은 사용자", safe=False, status=401)
+        result.delete_cookie('token')
         return result
-    result = JsonResponse("검증되지 않은 사용자", safe=False, status=401)
-    result.delete_cookie('token')
-    return result
 
 
 
