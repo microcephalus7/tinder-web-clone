@@ -115,7 +115,8 @@ def profile(request):
         requestData = json.load(request)
     except:
         return JsonResponse("규격에 맞는 데이터를 넣어주세요", safe=False, status=400)
-
+        
+    profileCheck = Profile.objects.filter(account=account)
     # 프로필 읽기
     if request.method == "GET":
         try:
