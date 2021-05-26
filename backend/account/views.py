@@ -108,7 +108,7 @@ def index(request):
 
 # 프로필 관리
 @csrf_exempt
-@tokenCheckDecorator
+@tokenCheckNonProDecorator
 def profile(request):
     account = request.account
     try:
@@ -128,6 +128,9 @@ def profile(request):
     
     # 프로필 생성
     if request.method == "POST":
+        requestCheck = validiationCheck(requestData.keys(), ["username","phoneNumber", "male","birthday","latitude", "longitude"])
+        if not requestCheck:
+            return JsonResponse("규격에 맞는 데이터를 넣어주세요",safe=False, status=400)
         profileCheck = Profile.objects.filter(account=account)
         if profileCheck.exists():
             return JsonResponse("이미 프로필이 존재합니다", safe=False, status=400)
