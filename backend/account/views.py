@@ -1,17 +1,13 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.forms.models import model_to_dict
-from django.shortcuts import get_object_or_404
 from .models import Account, Profile
 import json
 from django.utils import timezone
-from django.core import serializers
-from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views import View
 import bcrypt
 import jwt
 from backend.settings import SECRET_KEY
-from core.utils import tokenCheckDecorator,validiationCheck,tokenCheckNonProDecorator
+from core.utils import validiationCheck,tokenCheckNonProDecorator
 # Create your views here.
 
 # 로그인
@@ -145,7 +141,6 @@ def profile(request):
         return result
 
     # 프로필 수정
-    # 미완성
     if request.method == "PATCH":
         if not profile:
             return JsonResponse("프로필이 존재하지 않습니다", safe=False, status=400)
@@ -162,13 +157,12 @@ def profile(request):
         
 
     # 프로필 삭제
-    # 미완성    
     if request.method == "DELETE":
         if not profile:
             return JsonResponse("프로필이 존재하지 않습니다", safe=False, status=404)
         
         profile.delete()
-        
+
         result = JsonResponse("프로필 삭제 완료", safe=False)
         return result
     return JsonResponse("허용하지 않는 요청 메서드 입니다", status=405, safe=False )
@@ -181,11 +175,14 @@ def tokenCheck(request):
             token = request.COOKIES["token"]
         except:
             JsonResponse("토큰 값이 없습니다", safe=False, status=401)
+
         userTokenInfo = jwt.decode(token, SECRET_KEY, algorithms="HS256")
         result = None
+
         if Account.objects.filter(email=userTokenInfo["email"]).exists():
             result = JsonResponse("검증된 사용자", safe=False,status=202)
             return result
+        
         result = JsonResponse("검증되지 않은 사용자", safe=False, status=401)
         result.delete_cookie('token')
         return result
