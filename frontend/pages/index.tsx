@@ -5,7 +5,7 @@ const HomeWrapper = styled.div`
 `;
 
 function Home() {
-  return <HomeWrapper>즉 시 가 입 도 큐 삭 제</HomeWrapper>;
+  return <HomeWrapper>즉 시 가 입 바 벨 적 용</HomeWrapper>;
 }
 
 export default Home;
