@@ -1,4 +1,9 @@
+import styled from "styled-components";
+
+const SignInWrapper = styled.div`
+  color: blue;
+`;
 function SignIn() {
-  return <div>로그인</div>;
+  return <SignInWrapper>로그인</SignInWrapper>;
 }
 export default SignIn;
