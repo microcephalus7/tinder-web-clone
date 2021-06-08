@@ -5,7 +5,7 @@ const HomeWrapper = styled.div`
 `;
 
 function Home() {
-  return <HomeWrapper>즉 시 가 입</HomeWrapper>;
+  return <HomeWrapper>즉 시 가 입 </HomeWrapper>;
 }
 
 export default Home;
